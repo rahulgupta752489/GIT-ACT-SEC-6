@@ -10,7 +10,7 @@ jobs:
   test:
     env: 
       MONGODB_CLUSTER_ADDRESS: cluster0.usng83s.mongodb.net
-      MONGODB_USERNAME: ceq1899_db_user
+      MONGODB_USERNAME: ceq1899_db_use
       MONGODB_PASSWORD: AactB9XME3KvkWTl
       PORT: 8080
     runs-on: ubuntu-latest
