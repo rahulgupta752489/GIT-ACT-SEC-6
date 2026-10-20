@@ -9,8 +9,9 @@ on:
 env:
   MONGODB_DB_NAME: database-demo
 
-jobs:
+jobs: 
   test:
+    environment: testing
     env:
       MONGODB_CLUSTER_ADDRESS: cluster0.usng83s.mongodb.net
       MONGODB_USERNAME: ${{ secrets.MONGODB_USERNAME }}
