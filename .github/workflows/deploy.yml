@@ -52,6 +52,7 @@ jobs:
       - name: Output information
         run: |
           echo "DATABASE: $MONGODB_DB_NAME"
+          echo "MONGODB_USERNAME": $MONGODB_USERNAME 
 
       - name: Deploy
         run: echo "Deploying..."
