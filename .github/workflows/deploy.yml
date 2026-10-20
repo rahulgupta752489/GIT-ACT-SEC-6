@@ -2,58 +2,76 @@ name: Deployment
 
 on:
   push:
+    # Run workflow when code is pushed to master branch
     branches:
       - master
+
+      # Run workflow when code is pushed to dev branch
       - dev
 
+# Variables defined here can be used in all jobs
 env:
   MONGODB_DB_NAME: database-demo
 
-jobs: 
+jobs:
   test:
+
+    # Using the "testing" environment configured in GitHub
     environment: testing
+    # Variables below are available only inside test job
     env:
+      # MongoDB cluster address
       MONGODB_CLUSTER_ADDRESS: cluster0.usng83s.mongodb.net
+      # Get username from GitHub Secrets
       MONGODB_USERNAME: ${{ secrets.MONGODB_USERNAME }}
+      # Get password from GitHub Secrets
       MONGODB_PASSWORD: ${{ secrets.MONGODB_PASSWORD }}
+      # Application will run on port 8080
       PORT: 8080
-
+    # Creating Ubuntu runner
     runs-on: ubuntu-latest
-
     steps:
+      # Downloading repository code to runner
       - name: Get Code
         uses: actions/checkout@v4
-
+      # Saving the downloaded npm packages to reuse them later
       - name: Cache dependencies
         uses: actions/cache@v4
         with:
+          # Location where npm stores downloaded packages
           path: ~/.npm
+          # Create cache key based on package-lock.json
           key: npm-deps-${{ hashFiles('**/package-lock.json') }}
-
+      # Install dependencies from package-lock.json
       - name: Install dependencies
         run: npm ci
-
+      # Start application in background
+      # Wait until application becomes available
       - name: Run server
         run: npm start & npx wait-on http://127.0.0.1:$PORT
-
+      # Run automated tests
       - name: Run tests
         run: npm test
-
+      # Print values for learning/demo purposes
       - name: Output information
         run: |
           echo "MONGODB_USERNAME: ${{ env.MONGODB_USERNAME }}"
           echo "DATABASE: $MONGODB_DB_NAME"
-
   deploy:
+    # Run deploy job only if test job succeeds
     needs: test
-
+    # Create Ubuntu runner
     runs-on: ubuntu-latest
-
     steps:
+      # Print values for learning/demo purposes
       - name: Output information
         run: |
+          # This works because variable is defined at workflow level
           echo "DATABASE: $MONGODB_DB_NAME"
-          echo "MONGODB_USERNAME": $MONGODB_USERNAME 
 
+          # This will not work because this variable exists only in test job
+          echo "MONGODB_USERNAME": $MONGODB_USERNAME
+      # Placeholder deployment step
+      # Real projects deploy to AWS, Azure, Kubernetes, etc.
       - name: Deploy
         run: echo "Deploying..."
