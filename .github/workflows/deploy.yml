@@ -1,41 +1,57 @@
 name: Deployment
+
 on:
   push:
     branches:
       - main
       - dev
+
 env:
   MONGODB_DB_NAME: database-demo
+
 jobs:
   test:
-    env: 
+    env:
       MONGODB_CLUSTER_ADDRESS: cluster0.usng83s.mongodb.net
-      MONGODB_USERNAME: ceq1899_db_use
+      MONGODB_USERNAME: ceq1899_db_user
       MONGODB_PASSWORD: AactB9XME3KvkWTl
       PORT: 8080
+
     runs-on: ubuntu-latest
+
     steps:
       - name: Get Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
       - name: Cache dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.npm
           key: npm-deps-${{ hashFiles('**/package-lock.json') }}
+
       - name: Install dependencies
         run: npm ci
+
       - name: Run server
         run: npm start & npx wait-on http://127.0.0.1:$PORT
+
       - name: Run tests
         run: npm test
+
       - name: Output information
         run: |
-          echo "MONGODB_USERNAME: {{ env.MONGODB_USERNAME }}"
+          echo "MONGODB_USERNAME: ${{ env.MONGODB_USERNAME }}"
+          echo "DATABASE: $MONGODB_DB_NAME"
+
   deploy:
     needs: test
+
     runs-on: ubuntu-latest
+
     steps:
       - name: Output information
-        run: |        
-          echo "MONGODB_USERNAME: {{ env.MONGODB_USERNAME }}"
-          echo MONGODB_DB_NAME: $MONGODB_DB_NAME
+        run: |
+          echo "DATABASE: $MONGODB_DB_NAME"
+
+      - name: Deploy
+        run: echo "Deploying..."
